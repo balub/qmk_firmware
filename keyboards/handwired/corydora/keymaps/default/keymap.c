@@ -14,9 +14,9 @@ enum layer_names { _MAC_DEFAULT, _MAC_CODE, _MAC_NUM, _MAC_FUNC };
 #ifdef OLED_ENABLE
 
 // Rotate OLED
-// oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-//     return OLED_ROTATION_90;
-// }
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    return OLED_ROTATION_270;
+}
 
 // Draw to OLED
 bool oled_task_user() {

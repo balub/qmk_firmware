@@ -2,6 +2,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "timer.h" 
+
+#define NUM_LAYERS 4           // Constant for the number of layers
+#define DEBOUNCE_TIME 200      // Debounce time in milliseconds
+
+uint8_t current_layer = 0;     // Tracks the current layer
+uint16_t last_switch_time = 0; // Tracks the last time the layer was switched
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_ortho_3x3(KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, LT(1, KC_9)),
@@ -70,13 +77,18 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 }
 
 // Encoder switch
-#define NUM_LAYERS 4       // Constant for the number of layers
-uint8_t current_layer = 0; // Tracks the current layer
-
 bool dip_switch_update_user(uint8_t index, bool active) {
     if (index == 0 && active) {
-        current_layer = (current_layer + 1) % NUM_LAYERS; // Cycle to the next layer
-        layer_move(current_layer);                        // Switch to the new layer
+        uint16_t now = timer_read();  // Get the current time
+
+        // Check if enough time has passed for debouncing
+        if (timer_elapsed(last_switch_time) > DEBOUNCE_TIME) {
+            last_switch_time = now;  // Update the last switch time
+
+            current_layer = (current_layer + 1) % NUM_LAYERS;  // Cycle to the next layer
+            layer_move(current_layer);  // Switch to the new layer
+        }
     }
     return true;
 }
+
